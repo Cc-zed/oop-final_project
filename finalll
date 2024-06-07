@@ -1,0 +1,612 @@
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <string>
+#include <conio.h>
+#include <iomanip>
+#include <windows.h>
+#include <thread>
+
+using namespace std;
+
+class Drink {
+protected:
+    string name;
+    double price;
+    vector<string> ingredients;
+
+public:
+    Drink(const string& _name, double _price, const vector<string>& _ingredients): name(_name), price(_price), ingredients(_ingredients) {}
+
+    virtual string getName() const { return name; }
+    virtual double getPrice() const { return price; }
+    virtual vector<string> getIngredients() const { return ingredients; }
+};
+
+class Coffee : Drink {
+public:
+    Coffee() : Drink("Coffee", 1.5, { "water", "coffee", "sugar" }) {}
+};
+
+class Tea : Drink {
+public:
+    Tea() : Drink("Tea", 1.0, { "water", "tea", "sugar" }) {}
+};
+
+class Cappuccino : Drink {
+public:
+    Cappuccino() : Drink("Cappuccino", 2.0, { "water", "coffee", "milk", "chocolate", "sugar" }) {}
+};
+
+class Latte : Drink {
+public:
+    Latte() : Drink("Latte", 3.0, { "water", "coffee", "milk", "chocolate", "sugar" }) {}
+};
+
+class Espresso : Drink {
+public:
+    Espresso() : Drink("Espresso", 2.0, { "water", "coffee", "sugar" }) {}
+};
+
+class DoubleEspresso : Drink {
+public:
+    DoubleEspresso() : Drink("Double Espresso", 3.5, { "water", "coffee", "sugar" }) {}
+};
+
+class Americano : Drink {
+public:
+    Americano() : Drink("Americano", 1.5, { "water", "coffee", "sugar" }) {}
+};
+
+class Macchiato : Drink {
+public:
+    Macchiato() : Drink("Macchiato", 3.0, { "water", "coffee", "milk", "sugar" }) {}
+};
+
+class Mocha : Drink {
+public:
+    Mocha() : Drink("Mocha", 4.0, { "water", "coffee", "milk", "chocolate", "whipped cream", "sugar" }) {}
+};
+
+class Affogato : Drink {
+public:
+    Affogato() : Drink("Affogato", 4.5, { "water", "coffee", "ice cream", "sugar" }) {}
+};
+
+class IcedCoffee : Drink {
+public:
+    IcedCoffee() : Drink("Iced Coffee", 4.0, { "water", "coffee", "milk", "ice cubes", "syrup", "sugar" }) {}
+};
+
+class Machine {
+private:
+    unordered_map<string, double> inventory;
+    unordered_map<string, double> prices;
+    unordered_map<string, vector<string>> ingredients;
+    double cash;
+
+public:
+    Machine() : cash(0) {
+        inventory["water"] = 1000;
+        inventory["coffee"] = 500;
+        inventory["tea"] = 500;
+        inventory["sugar"] = 300;
+        inventory["milk"] = 500;
+        inventory["cinnamon"] = 300;
+        inventory["chocolate"] = 500;
+        inventory["whipped cream"] = 300;
+        inventory["ice cream"] = 300;
+        inventory["ice cubes"] = 100;
+        inventory["syrup"] = 100;
+        prices["Coffee"] = 1.5;
+        prices["Tea"] = 1.0;
+        prices["Cappuccino"] = 2.0;
+        prices["Latte"] = 3.0;
+        prices["Espresso"] = 2.0;
+        prices["Double Espresso"] = 3.5;
+        prices["Americano"] = 1.5;
+        prices["Macchiato"] = 3.0;
+        prices["Mocha"] = 4.0;
+        prices["Affogato"] = 4.5;
+        prices["Iced Coffee"] = 4.0;
+        ingredients["Coffee"] = { "water", "coffee"};
+        ingredients["Tea"] = { "water", "tea"};
+        ingredients["Cappuccino"] = { "water", "coffee", "milk", "chocolate"};
+        ingredients["Latte"] = { "water", "coffee", "milk", "chocolate"};
+        ingredients["Espresso"] = { "water", "coffee"};
+        ingredients["Double Espresso"] = { "water", "coffee"};
+        ingredients["Americano"] = { "water", "coffee"};
+        ingredients["Macchiato"] = { "water", "coffee", "milk"};
+        ingredients["Mocha"] = { "water", "coffee", "milk", "chocolate", "whipped cream"};
+        ingredients["Affogato"] = { "water", "coffee", "ice cream"};
+        ingredients["Iced Coffee"] = { "water", "coffee", "milk", "ice cubes", "syrup"};
+    }
+
+    void adminMode() {
+        const string options[] = {
+            "Load Machine",
+            "View Inventory",
+            "Change Prices",
+            "Remove Cash",
+            "Exit Admin Mode"
+        };
+        int choice;
+        while (true) {
+            choice = showMenu("Admin Menu", options, 5);
+            switch (choice) {
+            case 0:
+                loadMachine();
+                break;
+            case 1:
+                viewInventory();
+                break;
+            case 2:
+                changePrices();
+                break;
+            case 3:
+                removeCash();
+                break;
+            case 4:
+                return;
+            default:
+                cout << "Invalid choice. Try again.\n";
+            }
+            cout << "Press any key to return to the menu...";
+            _getch();
+        }
+    }
+
+    void userMode() {
+        const string drinks[] = {
+            "Coffee",
+            "Tea",
+            "Cappuccino",
+            "Latte",
+            "Espresso",
+            "Double Espresso",
+            "Americano",
+            "Macchiato",
+            "Mocha",
+            "Affogato",
+            "Iced Coffee",
+            "Exit User Mode"
+        };
+
+        int drinkIndex = 0;
+        while (true) {
+            int choice = showMenu("User Menu", drinks, 12);
+            if (choice == 11) {
+                return;
+            }
+            else {
+                showDrinkOptions(drinks[choice]);
+            }
+        }
+    }
+
+private:
+
+    void loadMachine() {
+        const string items[] = {
+            "water",
+            "coffee",
+            "tea",
+            "sugar",
+            "milk",
+            "cinnamon",
+            "chocolate",
+            "whipped cream",
+            "ice cream",
+            "ice cubes",
+            "syrup",
+            "Back"
+        };
+        int itemIndex = 0;
+        while (true) {
+            system("CLS");
+            cout << "\n========== Load Machine ==========\n\n";
+            for (int i = 0; i < 12; ++i) {
+                if (i == itemIndex) {
+                    setConsoleColor(1, 11);
+                    if (i < 11) {
+                        cout << " --> " << items[i] << " (" << inventory[items[i]] << " left) <-- \n";
+                    }
+                    else {
+                        cout << " --> " << items[i] << " <-- \n";
+                    }
+                    setConsoleColor(0, 7);
+                }
+                else {
+                    setConsoleColor(0, 7);
+                    if (i < 11) {
+                        cout << "     " << items[i] << " (" << inventory[items[i]] << " left)\n";
+                    }
+                    else {
+                        cout << "     " << items[i] << "\n";
+                    }
+                }
+            }
+            cout << "\n====================================\n";
+
+            char c = _getch();
+            switch (c) {
+            case 72:  // arrow up
+                if (itemIndex > 0)
+                    --itemIndex;
+                break;
+            case 80:  // arrow down
+                if (itemIndex < 11)
+                    ++itemIndex;
+                break;
+            case '\r':  // Enter
+                if (itemIndex == 11)
+                    return;
+                else
+                    loadItem(items[itemIndex]);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+    void loadItem(const string& item) {
+        double amount;
+        cout << "Enter amount of " << item << " to load: ";
+        cin >> amount;
+        if (amount <= 0) {
+            cout << "Invalid amount.\n";
+            return;
+        }
+        if (inventory.find(item) == inventory.end()) {
+            cout << "Invalid item.\n";
+            return;
+        }
+        inventory[item] += amount;
+        cout << "Loaded " << amount << " of " << item << endl;
+    }
+
+    void viewInventory() {
+        system("CLS");
+        cout << "\n========== Inventory ==========\n\n";
+        for (const auto& item : inventory) {
+            cout << item.first << ": " << item.second << "\n";
+        }
+        cout << "\n==============================\n";
+    }
+
+    void changePrice(const string& drinkName) {
+        double price;
+        cout << "Enter new price for " << drinkName << ": ";
+        cin >> price;
+        if (price <= 0) {
+            cout << "Invalid price.\n";
+            return;
+        }
+        prices[drinkName] = price;
+        cout << "Changed price of " << drinkName << " to $" << price << endl;
+    }
+
+
+    void changePrices() {
+        const string drinks[] = {
+            "Coffee",
+            "Tea",
+            "Cappuccino",
+            "Latte",
+            "Espresso",
+            "Double Espresso",
+            "Americano",
+            "Macchiato",
+            "Mocha",
+            "Affogato",
+            "Iced Coffee",
+            "Back"
+        };
+        int drinkIndex = 0;
+        while (true) {
+            system("CLS");
+            cout << "\n========== Change Prices ==========\n\n";
+            for (int i = 0; i < 12; ++i) {
+                if (i == drinkIndex) {
+                    setConsoleColor(1, 11);
+                    if (i < 11) {
+                        cout << " --> " << drinks[i] << " ($" << prices[drinks[i]] << ") <-- \n";
+                    }
+                    else {
+                        cout << " --> " << drinks[i] << " <-- \n";
+                    }
+                    setConsoleColor(0, 7);
+                }
+                else {
+                    setConsoleColor(0, 7);
+                    if (i < 11) {
+                        cout << "     " << drinks[i] << " ($" << prices[drinks[i]] << ")\n";
+                    }
+                    else {
+                        cout << "     " << drinks[i] << "\n";
+                    }
+                }
+            }
+            cout << "\n====================================\n";
+
+            char c = _getch();
+            switch (c) {
+            case 72:  // arrow up
+                if (drinkIndex > 0)
+                    --drinkIndex;
+                break;
+            case 80:  // arrow down
+                if (drinkIndex < 11)
+                    ++drinkIndex;
+                break;
+            case '\r':  // Enter
+                if (drinkIndex == 11)
+                    return;
+                else
+                    changePrice(drinks[drinkIndex]);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+    void removeCash() {
+        cout << "Total cash: $" << cash << "\n";
+        cash = 0;
+        cout << "Cash removed.\n";
+    }
+
+    void orderDrink(const string& drinkName) {
+        if (prices.find(drinkName) == prices.end()) {
+            cout << "Invalid drink.\n";
+            return;
+        }
+        double price = prices[drinkName];
+        double payment;
+        cout << "The price of " << drinkName << " is " << fixed << setprecision(2) << price << ". Enter payment: ";
+        cin >> payment;
+
+        if (payment < price) {
+            cout << "Insufficient payment.\n";
+            return;
+        }
+
+        bool withSugar = askForSugar();
+        bool withCinnamon = askForCinnamon();
+
+
+        if (!updateInventory(drinkName, withSugar, withCinnamon)) {
+            cout << "Insufficient ingredients.\n";
+            return;
+        }
+
+        cash += price;
+        double change = payment - price;
+        if (change > 0) {
+            cout << "Here is your change: " << change << endl;
+        }
+        cout << "Dispensing " << drinkName << (withSugar ? " with sugar" : " without sugar") << ". Enjoy!\n";
+    }
+
+    void showDrinkOptions(const string& drinkName) {
+        const string options[] = {
+            "Order Drink",
+            "Show Information",
+            "View Ingredients",
+            "Back"
+        };
+        int choice;
+        while (true) {
+            choice = showMenu(drinkName + " Options", options, 4);
+            switch (choice) {
+            case 0:
+                orderDrink(drinkName);
+                break;
+            case 1:
+                getDrinkInformation(drinkName);
+                break;
+            case 2:
+                viewDrinkIngredients(drinkName);
+                break;
+            case 3:
+                return;
+            default:
+                cout << "Invalid choice. Try again.\n";
+            }
+            cout << "Press any key to return to the options menu...";
+            _getch();
+        }
+    }
+
+    void getDrinkInformation(const string& drinkName) {
+        if (prices.find(drinkName) != prices.end()) {
+            cout << "Name: " << drinkName << endl;
+            cout << "Price: " << fixed << setprecision(2) << prices[drinkName] << endl;
+        }
+        else {
+            cout << "Invalid drink name.\n";
+        }
+    }
+
+    void viewDrinkIngredients(const string& drinkName) {
+        if (ingredients.find(drinkName) != ingredients.end()) {
+            cout << "Ingredients for " << drinkName << ":\n";
+            for (const auto& ingredient : ingredients[drinkName]) {
+                cout << ingredient << endl;
+            }
+        }
+        else {
+            cout << "Invalid drink name.\n";
+        }
+    }
+
+
+    bool askForSugar() {
+        char choice;
+        while (true) {
+            cout << "Do you want sugar? (y/n): ";
+            cin >> choice;
+            if (choice == 'y' || choice == 'Y') {
+                return true;
+            }
+            else if (choice == 'n' || choice == 'N') {
+                return false;
+            }
+            else {
+                cout << "Invalid choice. Please enter 'y' or 'n'.\n";
+            }
+        }
+    }
+
+    bool askForCinnamon() {
+        char choice;
+        while (true) {
+            cout << "Do you want cinnamon? (y/n): ";
+            cin >> choice;
+            if (choice == 'y' || choice == 'Y') {
+                return true;
+            }
+            else if (choice == 'n' || choice == 'N') {
+                return false;
+            }
+            else {
+                cout << "Invalid choice. Please enter 'y' or 'n'.\n";
+            }
+        }
+    }
+
+    bool updateInventory(const string& drinkName, bool withSugar, bool withCinnamon) {
+        int sugarAmount = withSugar ? 10 : 0;
+        int cinnamonAmount = withCinnamon ? 10 : 0;
+
+        auto deductInventory = [&](int waterAmount, int coffeeAmount, int milkAmount, int teaAmount, int chocolateAmount, int iceCreamAmount, int iceCubesAmount, int syrupAmount, int whippedCreamAmount) {
+            if (inventory["water"] >= waterAmount && inventory["coffee"] >= coffeeAmount && inventory["milk"] >= milkAmount && inventory["tea"] >= teaAmount && inventory["chocolate"] >= chocolateAmount && inventory["ice cream"] >= iceCreamAmount && inventory["ice cubes"] >= iceCubesAmount && inventory["syrup"] >= syrupAmount && inventory["whipped cream"] >= whippedCreamAmount && inventory["sugar"] >= sugarAmount) {
+                inventory["water"] -= waterAmount;
+                inventory["coffee"] -= coffeeAmount;
+                inventory["milk"] -= milkAmount;
+                inventory["tea"] -= teaAmount;
+                inventory["chocolate"] -= chocolateAmount;
+                inventory["ice cream"] -= iceCreamAmount;
+                inventory["ice cubes"] -= iceCubesAmount;
+                inventory["syrup"] -= syrupAmount;
+                inventory["whipped cream"] -= whippedCreamAmount;
+                inventory["sugar"] -= sugarAmount;
+                inventory["cinnamon"] -= cinnamonAmount;
+                return true;
+            }
+            return false;
+            };
+
+        if (drinkName == "Coffee") {
+            return deductInventory(200, 50, 0, 0, 0, 0, 0, 0, 0);
+        }
+        else if (drinkName == "Tea") {
+            return deductInventory(200, 0, 0, 30, 0, 0, 0, 0, 0);
+        }
+        else if (drinkName == "Cappuccino") {
+            return deductInventory(80, 30, 200, 0, 20, 0, 0, 0, 0);
+        }
+        else if (drinkName == "Latte") {
+            return deductInventory(150, 40, 300, 0, 10, 0, 0, 0, 0);
+        }
+        else if (drinkName == "Espresso") {
+            return deductInventory(150, 100, 0, 0, 0, 0, 0, 0, 0);
+        }
+        else if (drinkName == "Double Espresso") {
+            return deductInventory(200, 150, 0, 0, 0, 0, 0, 0, 0);
+        }
+        else if (drinkName == "Americano") {
+            return deductInventory(250, 100, 0, 0, 0, 0, 0, 0, 0);
+        }
+        else if (drinkName == "Macchiato") {
+            return deductInventory(150, 100, 200, 0, 0, 0, 0, 0, 0);
+        }
+        else if (drinkName == "Mocha") {
+            return deductInventory(80, 30, 150, 0, 30, 0, 0, 0, 20);
+        }
+        else if (drinkName == "Affogato") {
+            return deductInventory(100, 50, 0, 0, 0, 170, 0, 0, 0);
+        }
+        else if (drinkName == "Iced Coffee") {
+            return deductInventory(80, 30, 270, 0, 0, 0, 70, 10, 0);
+        }
+
+        return false;
+    }
+
+    void setConsoleColor(int background, int text) {
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        SetConsoleTextAttribute(hConsole, (background << 4) | text);
+    }
+
+
+public:
+    int showMenu(const string& title, const string options[], int numOptions) {
+        int highlight = 0;
+        char c;
+
+        while (true) {
+            system("CLS");
+            cout << "\n========== " << title << " ==========\n\n";
+            for (int i = 0; i < numOptions; ++i) {
+                if (i == highlight) {
+                    setConsoleColor(1, 11);
+                    cout << " --> " << options[i] << " <-- \n";
+                    setConsoleColor(0, 7);
+                }
+                else {
+                    setConsoleColor(0, 7);
+                    cout << "     " << options[i] << "\n";
+                }
+            }
+            cout << "\n=================================\n";
+
+            c = _getch();
+            switch (c) {
+            case 72:  // arrow up
+                if (highlight > 0)
+                    --highlight;
+                break;
+            case 80:  // arrow down
+                if (highlight < numOptions - 1)
+                    ++highlight;
+                break;
+            case '\r':  // Enter
+                return highlight;
+            default:
+                break;
+            }
+        }
+    }
+};
+
+
+int main() {
+    Machine machine;
+
+    const string options[] = {
+        "Admin Mode",
+        "User Mode",
+        "Exit"
+    };
+    int choice;
+    while (true) {
+        choice = machine.showMenu("Select Mode", options, 3);
+        switch (choice) {
+        case 0:
+            machine.adminMode();
+            break;
+        case 1:
+            machine.userMode();
+            break;
+        case 2:
+            return 0;
+        default:
+            cout << "Invalid choice. Try again.\n";
+        }
+    }
+
+    return 0;
+}
